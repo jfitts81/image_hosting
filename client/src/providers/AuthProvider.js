@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
 export const AuthContext = React.createContext();
 export const AuthConsumer = AuthContext.Consumer;
-
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-
   const handleRegister = (user, history) => {
     axios.post('/api/auth', user)
       .then( res => {
@@ -15,7 +12,6 @@ const AuthProvider = ({ children }) => {
       })
       .catch( err => console.log(err))
   }
-
   const handleLogin = (user, history) => {
     axios.post('/api/auth/sign_in', user)
     .then( res => {
@@ -24,7 +20,6 @@ const AuthProvider = ({ children }) => {
     })
     .catch( err => console.log(err))
   }
-
   const handleLogout = (history) => {
     axios.delete('/api/auth/sign_out')
       .then( res => {
@@ -33,7 +28,15 @@ const AuthProvider = ({ children }) => {
       })
       .catch( err => console.log(err))
   }
-
+  const updateUser = (id, user) => {
+    let data = new FormData()
+    data.append('file', user.file)
+    data.append('name', user.name)
+    data.append('email', user.email)
+    axios.put(`/api/users/${id}`, data)
+      .then( res => setUser(res.data))
+      .catch( err => console.log(err))
+  }
   return(
     <AuthContext.Provider value={{
       user,
@@ -42,10 +45,10 @@ const AuthProvider = ({ children }) => {
       handleLogout: handleLogout, 
       authenticated: user !== null,
       setUser: (user) => setUser(user),
+      updateUser: updateUser,
     }}>
       { children }
     </AuthContext.Provider>
   )
 }
-
 export default AuthProvider;
